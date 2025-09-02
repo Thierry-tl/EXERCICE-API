@@ -1,0 +1,111 @@
+openapi: 3.0.3
+info:
+  title: API de recherche de produits
+  description: API pour rechercher et récupérer des produits avec paramètres réutilisables
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+    description: Serveur principal
+
+paths:
+  /products:
+    get:
+      summary: Rechercher des produits
+      description: Retourne une liste de produits basée sur les critères de recherche
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+      responses:
+        '200':
+          description: Liste des produits récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+              examples:
+                multiple_products:
+                  summary: Résultat avec plusieurs produits
+                  description: Exemple de réponse avec plusieurs produits trouvés
+                  value:
+                    - name: "Lait Bio"
+                      expiration_datetime: "2025-09-15T10:30:00Z"
+                      price: 3.45
+                    - name: "Pain Complet"
+                      expiration_datetime: "2025-09-05T18:00:00Z"
+                      price: 2.80
+                    - name: "Yaourt Nature"
+                      expiration_datetime: "2025-09-20T23:59:00Z"
+                      price: 1.95
+                empty_list:
+                  summary: Liste vide
+                  description: Aucun produit trouvé pour les critères de recherche
+                  value: []
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nom du produit
+          example: "Lait Bio"
+        expiration_datetime:
+          type: string
+          format: date-time
+          description: Date et heure d'expiration du produit
+          example: "2025-09-15T10:30:00Z"
+        price:
+          type: number
+          format: float
+          description: Prix du produit en euros
+          minimum: 0
+          example: 3.45
+      required:
+        - name
+        - expiration_datetime
+        - price
+
+  parameters:
+    LimitParam:
+      name: limit
+      in: query
+      description: Nombre maximum d'éléments à retourner
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      examples:
+        default:
+          summary: Limite par défaut
+          value: 20
+        small_limit:
+          summary: Petite limite
+          value: 5
+        large_limit:
+          summary: Grande limite
+          value: 50
+
+    SearchParam:
+      name: q
+      in: query
+      description: Terme de recherche pour filtrer les produits par nom
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 100
+      examples:
+        food_search:
+          summary: Recherche alimentaire
+          value: "lait"
+        bread_search:
+          summary: Recherche pain
+          value: "pain"
+        empty_search:
+          summary: Recherche vide
+          value: ""

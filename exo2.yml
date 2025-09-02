@@ -1,0 +1,91 @@
+openapi: 3.0.3
+info:
+  title: API de gestion d'utilisateurs
+  description: API pour gérer les utilisateurs avec pagination
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+    description: Serveur principal
+
+paths:
+  /users:
+    get:
+      summary: Récupérer la liste des utilisateurs
+      description: Retourne une liste paginée d'utilisateurs
+      parameters:
+        - name: page
+          in: query
+          description: Numéro de la page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            example: 1
+        - name: size
+          in: query
+          description: Nombre d'utilisateurs par page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            example: 20
+      responses:
+        '200':
+          description: Liste des utilisateurs retrouvés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+              example:
+                - id: 1
+                  name: "Alice"
+                  email: "alice@example.com"
+                - id: 2
+                  name: "Bob"
+                  email: "bob@example.com"
+        '400':
+          description: Mauvais types de paramètres fournis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Bad types for provided query parameters"
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identifiant unique de l'utilisateur
+          example: 1
+        name:
+          type: string
+          description: Nom de l'utilisateur
+          example: "Alice"
+        email:
+          type: string
+          format: email
+          description: Adresse email de l'utilisateur
+          example: "alice@example.com"
+      required:
+        - id
+        - name
+        - email
+    
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Message d'erreur
+          example: "Bad types for provided query parameters"
+      required:
+        - error
